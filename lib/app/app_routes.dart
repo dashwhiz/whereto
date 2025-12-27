@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import '../screens/home/home_screen.dart';
-import '../screens/purchase/paywall_screen.dart';
 
 /// Centralized routing for the application
 /// Use static methods for type-safe navigation
@@ -18,11 +17,6 @@ class AppRoutes {
   /// Navigate to home screen and remove previous route
   static Future<dynamic>? navigateToHomeAndReplaceCurrent() {
     return Get.off(() => const HomeScreen());
-  }
-
-  /// Navigate to paywall screen
-  static Future<dynamic>? navigateToPaywall() {
-    return Get.to(() => const PaywallScreen());
   }
 
   /// Go back to previous screen

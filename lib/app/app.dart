@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'app_theme.dart';
 import 'app_translations.dart';
 import '../screens/home/home_screen.dart';
-import '../services/purchase_service.dart';
 import '../services/connectivity_service.dart';
 import '../services/logging_service.dart';
 
@@ -52,9 +51,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     log.info('Disposing services...');
 
     try {
-      // Dispose purchase service
-      purchaseService.dispose();
-
       // Dispose connectivity service
       connectivityService.dispose();
 
