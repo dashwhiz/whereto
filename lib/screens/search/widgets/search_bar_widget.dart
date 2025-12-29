@@ -9,6 +9,7 @@ class SearchBarWidget extends StatelessWidget {
   final VoidCallback onClear;
   final bool hasFocus;
   final bool hasText;
+  final double fadeProgress;
 
   const SearchBarWidget({
     super.key,
@@ -17,6 +18,7 @@ class SearchBarWidget extends StatelessWidget {
     required this.onClear,
     required this.hasFocus,
     required this.hasText,
+    this.fadeProgress = 1.0,
   });
 
   @override
@@ -38,10 +40,13 @@ class SearchBarWidget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          filter: ImageFilter.blur(
+            sigmaX: 15 * fadeProgress,
+            sigmaY: 15 * fadeProgress,
+          ),
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.3),
+              color: AppColors.surface.withValues(alpha: 0.3 * fadeProgress),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: hasFocus
@@ -53,8 +58,8 @@ class SearchBarWidget extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.white.withValues(alpha: 0.15),
-                  Colors.white.withValues(alpha: 0.05),
+                  Colors.white.withValues(alpha: 0.15 * fadeProgress),
+                  Colors.white.withValues(alpha: 0.05 * fadeProgress),
                 ],
               ),
             ),

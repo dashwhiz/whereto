@@ -76,7 +76,6 @@ class MovieSearchController extends GetxController
 
     introController.forward();
 
-    // Start background image cycling (every 10 seconds)
     _backgroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       currentBackgroundIndex.value =
           (currentBackgroundIndex.value + 1) % BackgroundImages.images.length;
@@ -97,7 +96,6 @@ class MovieSearchController extends GetxController
   void _onTextChanged() {
     final query = textController.text;
 
-    // Update hasText observable
     hasText.value = query.isNotEmpty;
 
     if (query.isNotEmpty && !isSearching.value) {
@@ -173,25 +171,21 @@ class SearchScreen extends GetView<MovieSearchController> {
     return GestureDetector(
       onTap: () => controller.searchFocusNode.unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            // Animated background images - fade in on load, fade to black when searching
             AnimatedBuilder(
               animation: Listenable.merge([
                 controller.logoAnimation,
                 controller.searchBarAnimation,
               ]),
               builder: (context, child) {
-                // Fade in during intro (0.0 -> 1.0)
                 final introOpacity = controller.logoAnimation.value;
 
-                // Fade out when searching (1.0 -> 0.0)
                 final searchFadeOut = 1.0 - controller.searchBarAnimation.value;
 
-                // Combine: intro fade-in, then fade-out on search
                 final combinedOpacity = introOpacity * searchFadeOut;
 
-                // Subtle zoom-in effect during intro (1.1 -> 1.0)
                 final scale = 1.0 + (0.1 * (1.0 - introOpacity));
 
                 return Transform.scale(
@@ -202,13 +196,17 @@ class SearchScreen extends GetView<MovieSearchController> {
                       () => AnimatedSwitcher(
                         duration: const Duration(milliseconds: 1000),
                         child: Container(
-                          key: ValueKey(controller.currentBackgroundIndex.value),
+                          key: ValueKey(
+                            controller.currentBackgroundIndex.value,
+                          ),
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: NetworkImage(
-                                BackgroundImages.images[controller
-                                    .currentBackgroundIndex
-                                    .value].url,
+                                BackgroundImages
+                                    .images[controller
+                                        .currentBackgroundIndex
+                                        .value]
+                                    .url,
                               ),
                               fit: BoxFit.cover,
                               opacity: 0.5,
@@ -234,7 +232,6 @@ class SearchScreen extends GetView<MovieSearchController> {
               },
             ),
 
-            // Artist attribution - centered at bottom
             Positioned(
               bottom: 16,
               left: 0,
@@ -246,7 +243,8 @@ class SearchScreen extends GetView<MovieSearchController> {
                 ]),
                 builder: (context, child) {
                   final introOpacity = controller.logoAnimation.value;
-                  final searchFadeOut = 1.0 - controller.searchBarAnimation.value;
+                  final searchFadeOut =
+                      1.0 - controller.searchBarAnimation.value;
                   final combinedOpacity = introOpacity * searchFadeOut;
 
                   return Opacity(
@@ -265,7 +263,9 @@ class SearchScreen extends GetView<MovieSearchController> {
                           child: Text(
                             'Photo by ${BackgroundImages.images[controller.currentBackgroundIndex.value].artist}',
                             style: TextStyle(
-                              color: AppColors.textSecondary.withValues(alpha: 0.7),
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.7,
+                              ),
                               fontSize: 10,
                             ),
                           ),
@@ -278,6 +278,7 @@ class SearchScreen extends GetView<MovieSearchController> {
             ),
 
             SafeArea(
+              bottom: false,
               child: SizedBox.expand(
                 child: Stack(
                   children: [
@@ -325,8 +326,8 @@ class SearchScreen extends GetView<MovieSearchController> {
         final spacing = 40.0;
 
         final totalHeight = logoHeight + spacing + searchBarHeight;
-        final centerY = (screenHeight / 2) - (totalHeight / 2);
-        final topY = -100.0;
+        final centerY = (screenHeight / 2) - (totalHeight / 2) - 100;
+        final topY = -120.0;
         final titleTop =
             controller.searchBarAnimation.value * topY +
             (1 - controller.searchBarAnimation.value) * centerY;
@@ -363,7 +364,7 @@ class SearchScreen extends GetView<MovieSearchController> {
 
         final totalHeight = logoHeight + spacing + searchBarHeight;
         final centerY =
-            (screenHeight / 2) - (totalHeight / 2) + logoHeight + spacing;
+            (screenHeight / 2) - (totalHeight / 2) + logoHeight + spacing - 100;
         final topY = 20.0;
         final searchTop =
             controller.searchBarAnimation.value * topY +
@@ -376,14 +377,20 @@ class SearchScreen extends GetView<MovieSearchController> {
           child: Opacity(opacity: introOpacity, child: child!),
         );
       },
-      child: Obx(
-        () => SearchBarWidget(
-          controller: controller.textController,
-          focusNode: controller.searchFocusNode,
-          onClear: controller.clearSearch,
-          hasFocus: controller.hasFocus.value,
-          hasText: controller.hasText.value,
-        ),
+      child: AnimatedBuilder(
+        animation: controller.searchBarFadeAnimation,
+        builder: (context, child) {
+          return Obx(
+            () => SearchBarWidget(
+              controller: controller.textController,
+              focusNode: controller.searchFocusNode,
+              onClear: controller.clearSearch,
+              hasFocus: controller.hasFocus.value,
+              hasText: controller.hasText.value,
+              fadeProgress: controller.searchBarFadeAnimation.value,
+            ),
+          );
+        },
       ),
     );
   }

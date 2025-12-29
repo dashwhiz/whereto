@@ -63,12 +63,6 @@ class BackgroundImages {
     ),
     BackgroundImage(
       url:
-          'https://images.unsplash.com/photo-1547082551-8a96dd6ec335?w=1200&q=80',
-      artist: 'Charles Deluvio',
-      link: 'https://unsplash.com/@charlesdeluvio',
-    ),
-    BackgroundImage(
-      url:
           'https://images.unsplash.com/photo-1585647347483-22b66260dfff?w=1200&q=80',
       artist: 'Krists Luhaers',
       link: 'https://unsplash.com/@kristsll',
@@ -78,12 +72,6 @@ class BackgroundImages {
           'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&q=80',
       artist: 'Jakob Owens',
       link: 'https://unsplash.com/@jakobowens1',
-    ),
-    BackgroundImage(
-      url:
-          'https://images.unsplash.com/photo-1574267432644-f610cab4b5b5?w=1200&q=80',
-      artist: 'Denise Jans',
-      link: 'https://unsplash.com/@dmjdenise',
     ),
     BackgroundImage(
       url:
