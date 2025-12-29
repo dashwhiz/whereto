@@ -64,9 +64,9 @@ class TmdbAttribution extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Data Attribution',
-                        style: TextStyle(
+                      Text(
+                        'dataAttribution'.tr,
+                        style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -74,7 +74,7 @@ class TmdbAttribution extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'This product uses the TMDB API but is not endorsed or certified by TMDB.',
+                        'tmdbDisclaimer'.tr,
                         style: TextStyle(
                           color: AppColors.textSecondary.withValues(alpha: 0.9),
                           fontSize: 14,
@@ -111,10 +111,10 @@ class TmdbAttribution extends StatelessWidget {
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  'Visit TMDB',
-                                  style: TextStyle(
+                                  'visitTmdb'.tr,
+                                  style: const TextStyle(
                                     color: AppColors.textPrimary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -159,9 +159,9 @@ class TmdbAttribution extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Powered by',
-              style: TextStyle(color: Colors.white70, fontSize: 10),
+            Text(
+              'poweredBy'.tr,
+              style: const TextStyle(color: Colors.white70, fontSize: 10),
             ),
             const SizedBox(width: 6),
             Container(

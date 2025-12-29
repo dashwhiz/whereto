@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../app/app_colors.dart';
 
@@ -55,7 +56,7 @@ class _TrailerPlayerState extends State<TrailerPlayer> {
             ),
             const SizedBox(width: 8),
             Text(
-              widget.title ?? 'Trailer',
+              widget.title ?? 'trailer'.tr,
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,

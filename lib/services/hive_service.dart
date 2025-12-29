@@ -137,4 +137,167 @@ class HiveBoxes {
   static const String user = 'user';
   static const String purchases = 'purchases'; // In-App Purchase data
   static const String entitlements = 'entitlements'; // User entitlements
+  static const String searchCache = 'search_cache'; // TMDB search results
+  static const String availabilityCache = 'availability_cache'; // Watch providers
+  static const String detailsCache = 'details_cache'; // Movie/TV details
+}
+
+/// Cache extensions for TMDB data
+extension TmdbCache on HiveService {
+  static const int _cacheExpiryHours = 48; // Cache expires after 48 hours
+
+  /// Cache search results
+  Future<void> cacheSearchResults(String query, String jsonData) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.searchCache);
+      await box.put(query.toLowerCase(), {
+        'data': jsonData,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+      log.debug('Cached search results for: $query');
+    } catch (e) {
+      log.error('Failed to cache search results', e);
+    }
+  }
+
+  /// Get cached search results (returns null if expired or not found)
+  Future<String?> getCachedSearchResults(String query) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.searchCache);
+      final data = box.get(query.toLowerCase());
+
+      if (data == null) return null;
+
+      final timestamp = data['timestamp'] as int;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final ageInHours = (now - timestamp) / (1000 * 60 * 60);
+
+      // Cache expired (older than 48 hours)
+      if (ageInHours > _cacheExpiryHours) {
+        await box.delete(query.toLowerCase());
+        log.debug('Search cache expired for: $query (${ageInHours.toStringAsFixed(1)}h old)');
+        return null;
+      }
+
+      log.debug('Using cached search results for: $query (${ageInHours.toStringAsFixed(1)}h old)');
+      return data['data'] as String;
+    } catch (e) {
+      log.error('Failed to get cached search results', e);
+      return null;
+    }
+  }
+
+  /// Cache watch providers (availability)
+  Future<void> cacheWatchProviders({
+    required int movieId,
+    required String mediaType,
+    required String region,
+    required String jsonData,
+  }) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.availabilityCache);
+      final key = '${movieId}_${mediaType}_$region';
+      await box.put(key, {
+        'data': jsonData,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+      log.debug('Cached availability for: $key');
+    } catch (e) {
+      log.error('Failed to cache availability', e);
+    }
+  }
+
+  /// Get cached watch providers (returns null if expired or not found)
+  Future<String?> getCachedWatchProviders({
+    required int movieId,
+    required String mediaType,
+    required String region,
+  }) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.availabilityCache);
+      final key = '${movieId}_${mediaType}_$region';
+      final data = box.get(key);
+
+      if (data == null) return null;
+
+      final timestamp = data['timestamp'] as int;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final ageInHours = (now - timestamp) / (1000 * 60 * 60);
+
+      // Cache expired (older than 48 hours)
+      if (ageInHours > _cacheExpiryHours) {
+        await box.delete(key);
+        log.debug('Availability cache expired for: $key (${ageInHours.toStringAsFixed(1)}h old)');
+        return null;
+      }
+
+      log.debug('Using cached availability for: $key (${ageInHours.toStringAsFixed(1)}h old)');
+      return data['data'] as String;
+    } catch (e) {
+      log.error('Failed to get cached availability', e);
+      return null;
+    }
+  }
+
+  /// Cache movie/TV details
+  Future<void> cacheDetails({
+    required int movieId,
+    required String mediaType,
+    required String jsonData,
+  }) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.detailsCache);
+      final key = '${movieId}_$mediaType';
+      await box.put(key, {
+        'data': jsonData,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+      log.debug('Cached details for: $key');
+    } catch (e) {
+      log.error('Failed to cache details', e);
+    }
+  }
+
+  /// Get cached movie/TV details (returns null if expired or not found)
+  Future<String?> getCachedDetails({
+    required int movieId,
+    required String mediaType,
+  }) async {
+    try {
+      final box = await openBox<Map>(HiveBoxes.detailsCache);
+      final key = '${movieId}_$mediaType';
+      final data = box.get(key);
+
+      if (data == null) return null;
+
+      final timestamp = data['timestamp'] as int;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final ageInHours = (now - timestamp) / (1000 * 60 * 60);
+
+      // Cache expired (older than 48 hours)
+      if (ageInHours > _cacheExpiryHours) {
+        await box.delete(key);
+        log.debug('Details cache expired for: $key (${ageInHours.toStringAsFixed(1)}h old)');
+        return null;
+      }
+
+      log.debug('Using cached details for: $key (${ageInHours.toStringAsFixed(1)}h old)');
+      return data['data'] as String;
+    } catch (e) {
+      log.error('Failed to get cached details', e);
+      return null;
+    }
+  }
+
+  /// Clear all TMDB caches
+  Future<void> clearTmdbCache() async {
+    try {
+      await deleteBox(HiveBoxes.searchCache);
+      await deleteBox(HiveBoxes.availabilityCache);
+      await deleteBox(HiveBoxes.detailsCache);
+      log.info('Cleared all TMDB caches');
+    } catch (e) {
+      log.error('Failed to clear TMDB cache', e);
+    }
+  }
 }

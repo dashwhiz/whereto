@@ -3,6 +3,7 @@ import '../models/movie.dart';
 import '../models/watch_availability.dart';
 import '../models/streaming_provider.dart';
 import 'appwrite_service.dart';
+import 'hive_service.dart';
 import 'logging_service.dart';
 
 /// TMDB service using Appwrite Functions
@@ -14,18 +15,39 @@ class TmdbService {
 
   final _appwrite = appwriteService;
 
-  /// Search for movies and TV shows
+  /// Search for movies and TV shows (with local caching)
   Future<List<Movie>> searchMovies(String query) async {
     try {
       log.info('Searching for: $query');
 
+      // Check cache first
+      final cachedData = await hiveService.getCachedSearchResults(query);
+      if (cachedData != null) {
+        final data = jsonDecode(cachedData) as Map<String, dynamic>;
+        final results = data['results'] as List<dynamic>? ?? [];
+
+        log.info('Found ${results.length} results (from cache)');
+
+        return results
+            .where((item) {
+              final mediaType = item['media_type'] as String?;
+              return mediaType == 'movie' || mediaType == 'tv';
+            })
+            .map((item) => _parseMovie(item as Map<String, dynamic>))
+            .toList();
+      }
+
+      // Cache miss - fetch from API
       final response = await _appwrite.searchMovies(query);
       final jsonString = response['data'] as String;
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
+      // Cache the response
+      await hiveService.cacheSearchResults(query, jsonString);
+
       final results = data['results'] as List<dynamic>? ?? [];
 
-      log.info('Found ${results.length} results');
+      log.info('Found ${results.length} results (from API)');
 
       return results
           .where((item) {
@@ -40,7 +62,7 @@ class TmdbService {
     }
   }
 
-  /// Get watch providers for a movie/show
+  /// Get watch providers for a movie/show (with local caching)
   Future<WatchAvailability?> getWatchProviders({
     required int movieId,
     required String mediaType,
@@ -49,6 +71,26 @@ class TmdbService {
     try {
       log.info('Getting watch providers for $mediaType $movieId in $region');
 
+      // Check cache first
+      final cachedData = await hiveService.getCachedWatchProviders(
+        movieId: movieId,
+        mediaType: mediaType,
+        region: region,
+      );
+      if (cachedData != null) {
+        final data = jsonDecode(cachedData) as Map<String, dynamic>;
+        final results = data['results'] as Map<String, dynamic>? ?? {};
+        final regionData = results[region] as Map<String, dynamic>?;
+
+        if (regionData == null) {
+          log.info('No availability in $region (from cache)');
+          return null;
+        }
+
+        return _parseWatchAvailability(movieId, region, regionData);
+      }
+
+      // Cache miss - fetch from API
       final response = await _appwrite.getWatchProviders(
         movieId: movieId,
         mediaType: mediaType,
@@ -57,6 +99,14 @@ class TmdbService {
 
       final jsonString = response['data'] as String;
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      // Cache the response
+      await hiveService.cacheWatchProviders(
+        movieId: movieId,
+        mediaType: mediaType,
+        region: region,
+        jsonData: jsonString,
+      );
 
       final results = data['results'] as Map<String, dynamic>? ?? {};
       final regionData = results[region] as Map<String, dynamic>?;
@@ -73,7 +123,7 @@ class TmdbService {
     }
   }
 
-  /// Get detailed movie/TV show information
+  /// Get detailed movie/TV show information (with local caching)
   Future<Movie?> getDetails({
     required int movieId,
     required String mediaType,
@@ -81,6 +131,17 @@ class TmdbService {
     try {
       log.info('Getting details for $mediaType $movieId');
 
+      // Check cache first
+      final cachedData = await hiveService.getCachedDetails(
+        movieId: movieId,
+        mediaType: mediaType,
+      );
+      if (cachedData != null) {
+        final data = jsonDecode(cachedData) as Map<String, dynamic>;
+        return _parseMovieDetails(data, mediaType);
+      }
+
+      // Cache miss - fetch from API
       final response = await _appwrite.getDetails(
         movieId: movieId,
         mediaType: mediaType,
@@ -88,6 +149,13 @@ class TmdbService {
 
       final jsonString = response['data'] as String;
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      // Cache the response
+      await hiveService.cacheDetails(
+        movieId: movieId,
+        mediaType: mediaType,
+        jsonData: jsonString,
+      );
 
       return _parseMovieDetails(data, mediaType);
     } catch (e) {
@@ -107,7 +175,8 @@ class TmdbService {
       backdropPath: json['backdrop_path'] as String?,
       overview: json['overview'] as String?,
       voteAverage: (json['vote_average'] as num?)?.toDouble(),
-      releaseDate: json['release_date'] as String? ?? json['first_air_date'] as String?,
+      releaseDate:
+          json['release_date'] as String? ?? json['first_air_date'] as String?,
       mediaType: mediaType,
     );
   }
@@ -125,21 +194,27 @@ class TmdbService {
     final castList = credits?['cast'] as List<dynamic>? ?? [];
     final cast = castList
         .take(5)
-        .map((c) => CastMember(
-              name: (c as Map<String, dynamic>)['name'] as String,
-              character: c['character'] as String? ?? '',
-              profilePath: c['profile_path'] as String?,
-            ))
+        .map(
+          (c) => CastMember(
+            name: (c as Map<String, dynamic>)['name'] as String,
+            character: c['character'] as String? ?? '',
+            profilePath: c['profile_path'] as String?,
+          ),
+        )
         .toList();
 
     // Parse trailer
     final videos = json['videos'] as Map<String, dynamic>?;
     final videosList = videos?['results'] as List<dynamic>? ?? [];
     final trailer = videosList.firstWhere(
-      (v) => (v as Map<String, dynamic>)['type'] == 'Trailer' && v['site'] == 'YouTube',
+      (v) =>
+          (v as Map<String, dynamic>)['type'] == 'Trailer' &&
+          v['site'] == 'YouTube',
       orElse: () => null,
     );
-    final trailerKey = trailer != null ? (trailer as Map<String, dynamic>)['key'] as String? : null;
+    final trailerKey = trailer != null
+        ? (trailer as Map<String, dynamic>)['key'] as String?
+        : null;
 
     return Movie(
       id: json['id'] as int,
@@ -148,7 +223,8 @@ class TmdbService {
       backdropPath: json['backdrop_path'] as String?,
       overview: json['overview'] as String?,
       voteAverage: (json['vote_average'] as num?)?.toDouble(),
-      releaseDate: json['release_date'] as String? ?? json['first_air_date'] as String?,
+      releaseDate:
+          json['release_date'] as String? ?? json['first_air_date'] as String?,
       mediaType: mediaType,
       genres: genres,
       runtime: json['runtime'] as int? ?? json['episode_run_time']?[0] as int?,
@@ -178,12 +254,14 @@ class TmdbService {
     if (providers == null) return [];
 
     return providers
-        .map((p) => StreamingProvider(
-              providerId: (p as Map<String, dynamic>)['provider_id'] as int,
-              providerName: p['provider_name'] as String,
-              logoPath: p['logo_path'] as String? ?? '',
-              type: 'flatrate',
-            ))
+        .map(
+          (p) => StreamingProvider(
+            providerId: (p as Map<String, dynamic>)['provider_id'] as int,
+            providerName: p['provider_name'] as String,
+            logoPath: p['logo_path'] as String? ?? '',
+            type: 'flatrate',
+          ),
+        )
         .toList();
   }
 }

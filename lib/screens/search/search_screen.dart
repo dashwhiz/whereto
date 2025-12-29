@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../app/app_colors.dart';
 import '../../data/background_images.dart';
 import '../../models/movie.dart';
 import '../../models/region.dart';
 import '../../services/tmdb_service.dart';
+import '../../services/location_service.dart';
+import '../../services/connectivity_service.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/availability_sheet.dart';
 import '../../widgets/tmdb_attribution.dart';
@@ -18,14 +21,17 @@ class MovieSearchController extends GetxController
   final searchResults = <Movie>[].obs;
   final isLoading = false.obs;
   final isSearching = false.obs;
-  final selectedRegion = Region.defaultRegion.obs;
+  final selectedRegion = Rx<Region?>(null);
   final hasFocus = false.obs;
   final hasText = false.obs;
   final currentBackgroundIndex = 0.obs;
+  final isOffline = false.obs;
 
   String _lastSearchQuery = '';
+  String _pendingSearchQuery = '';
   Timer? _debounceTimer;
   Timer? _backgroundTimer;
+  StreamSubscription? _connectivitySubscription;
 
   final textController = TextEditingController();
   final searchFocusNode = FocusNode();
@@ -39,6 +45,12 @@ class MovieSearchController extends GetxController
   @override
   void onInit() {
     super.onInit();
+
+    // Load user's detected region
+    _loadUserRegion();
+
+    // Monitor connectivity status
+    _initConnectivityMonitoring();
 
     introController = AnimationController(
       duration: const Duration(milliseconds: 2000),
@@ -83,10 +95,39 @@ class MovieSearchController extends GetxController
     });
   }
 
+  /// Load user's detected region from location service
+  Future<void> _loadUserRegion() async {
+    final region = await locationService.getCurrentRegion();
+    selectedRegion.value = region;
+  }
+
+  /// Initialize connectivity monitoring
+  void _initConnectivityMonitoring() {
+    // Set initial status
+    isOffline.value = !connectivityService.isConnected;
+
+    // Listen to connectivity changes using a new Connectivity instance
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      results,
+    ) {
+      final wasOffline = isOffline.value;
+      final isConnected =
+          results.isNotEmpty && !results.contains(ConnectivityResult.none);
+      isOffline.value = !isConnected;
+
+      // If we just came back online and have a pending search, retry it
+      if (wasOffline && !isOffline.value && _pendingSearchQuery.isNotEmpty) {
+        _performSearch(_pendingSearchQuery);
+        _pendingSearchQuery = '';
+      }
+    });
+  }
+
   @override
   void onClose() {
     _debounceTimer?.cancel();
     _backgroundTimer?.cancel();
+    _connectivitySubscription?.cancel();
     introController.dispose();
     animationController.dispose();
     textController.dispose();
@@ -129,6 +170,12 @@ class MovieSearchController extends GetxController
 
   Future<void> _performSearch(String query) async {
     if (isLoading.value || query.isEmpty || query == _lastSearchQuery) return;
+
+    // Check connectivity before searching
+    if (!connectivityService.isConnected) {
+      _pendingSearchQuery = query;
+      return;
+    }
 
     isSearching.value = true;
     _lastSearchQuery = query;
@@ -265,7 +312,9 @@ class SearchScreen extends GetView<MovieSearchController> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'Photo by ${BackgroundImages.images[controller.currentBackgroundIndex.value].artist}',
+                              'photoBy'.trParams({
+                                'artist': BackgroundImages.images[controller.currentBackgroundIndex.value].artist
+                              }),
                               style: TextStyle(
                                 color: AppColors.textSecondary.withValues(
                                   alpha: 0.7,
@@ -303,6 +352,9 @@ class SearchScreen extends GetView<MovieSearchController> {
                     _buildAnimatedLogo(context, controller),
 
                     _buildAnimatedSearchBar(controller),
+
+                    // Offline banner
+                    _buildOfflineBanner(controller),
                   ],
                 ),
               ),
@@ -419,9 +471,55 @@ class SearchScreen extends GetView<MovieSearchController> {
     controller.searchFocusNode.unfocus();
 
     Get.bottomSheet(
-      AvailabilitySheet(movie: movie, region: controller.selectedRegion.value),
+      AvailabilitySheet(
+        movie: movie,
+        region: controller.selectedRegion.value ?? Region.defaultRegion,
+      ),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
     );
+  }
+
+  Widget _buildOfflineBanner(MovieSearchController controller) {
+    return Obx(() {
+      if (!controller.isOffline.value) {
+        return const SizedBox.shrink();
+      }
+
+      return Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.error.withValues(alpha: 0.95),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.wifi_off, color: Colors.white, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'noInternetConnection'.tr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

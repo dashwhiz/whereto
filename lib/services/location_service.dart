@@ -18,14 +18,7 @@ class LocationService {
   Future<Region> init() async {
     log.info('🌍 Initializing location service...');
 
-    // Check if we have a saved region
-    final savedRegion = await _getSavedRegion();
-    if (savedRegion != null) {
-      log.info('📍 Using saved region: ${savedRegion.name}');
-      return savedRegion;
-    }
-
-    // Try to detect region from location
+    // Try to detect region from location FIRST (don't rely on saved region on init)
     final detectedRegion = await _detectRegionFromLocation();
     if (detectedRegion != null) {
       log.info('✅ Detected region: ${detectedRegion.name}');
@@ -33,8 +26,16 @@ class LocationService {
       return detectedRegion;
     }
 
-    // Fall back to default region (US)
-    log.info('⚠️ Using default region: ${Region.defaultRegion.name}');
+    // Check if we have a saved region (fallback)
+    final savedRegion = await _getSavedRegion();
+    if (savedRegion != null) {
+      log.info('📍 Using saved region: ${savedRegion.name}');
+      return savedRegion;
+    }
+
+    // Fall back to default region (US) - but DON'T save it
+    log.warning('⚠️ Could not detect location, using default region: ${Region.defaultRegion.name}');
+    log.warning('💡 Tip: Grant location permission for automatic region detection');
     return Region.defaultRegion;
   }
 

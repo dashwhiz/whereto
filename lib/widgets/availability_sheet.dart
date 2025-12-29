@@ -180,7 +180,7 @@ class _AvailabilitySheetState extends State<AvailabilitySheet> {
                             : (_detailedMovie?.trailerKey != null)
                                 ? TrailerPlayer(
                                     trailerKey: _detailedMovie!.trailerKey!,
-                                    title: 'Watch Trailer',
+                                    title: 'watchTrailer'.tr,
                                   )
                                 : const SizedBox.shrink(),
 
@@ -191,7 +191,7 @@ class _AvailabilitySheetState extends State<AvailabilitySheet> {
                             : (_detailedMovie != null && _detailedMovie!.cast.isNotEmpty)
                                 ? CastList(
                                     cast: _detailedMovie!.cast,
-                                    title: 'Cast & Crew',
+                                    title: 'castAndCrew'.tr,
                                   )
                                 : const SizedBox.shrink(),
                         const SizedBox(height: 20),
@@ -211,9 +211,9 @@ class _AvailabilitySheetState extends State<AvailabilitySheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Overview',
-          style: TextStyle(
+        Text(
+          'overview'.tr,
+          style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,

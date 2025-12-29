@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../app/app_colors.dart';
@@ -31,7 +32,7 @@ class CastList extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              title ?? 'Cast',
+              title ?? 'cast'.tr,
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,

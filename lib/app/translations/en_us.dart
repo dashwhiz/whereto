@@ -8,6 +8,7 @@ const Map<String, String> enUS = {
   'noResults': 'No results found',
   'noResultsHint': 'Try adjusting your search terms',
   'searchHint': 'Search for your favorite movies and shows',
+  'photoBy': 'Photo by @artist',
 
   // Availability Sheet
   'whereToWatch': 'Where to Watch',
@@ -21,6 +22,11 @@ const Map<String, String> enUS = {
   'findingWhereToWatch': 'Finding where to watch...',
   'tryDifferentRegion': 'Try a different region',
   'watchingFrom': 'Watching from',
+  'overview': 'Overview',
+  'watchTrailer': 'Watch Trailer',
+  'castAndCrew': 'Cast & Crew',
+  'cast': 'Cast',
+  'trailer': 'Trailer',
 
   // Region Selector
   'selectRegion': 'Select Your Region',
@@ -28,6 +34,12 @@ const Map<String, String> enUS = {
   'changeRegion': 'Change Region',
   'popular': 'POPULAR',
   'allRegions': 'ALL REGIONS',
+
+  // TMDB Attribution
+  'dataAttribution': 'Data Attribution',
+  'tmdbDisclaimer': 'This product uses the TMDB API but is not endorsed or certified by TMDB.',
+  'visitTmdb': 'Visit TMDB',
+  'poweredBy': 'Powered by',
 
   // Common
   'ok': 'OK',
