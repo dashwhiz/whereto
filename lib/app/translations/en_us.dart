@@ -1,19 +1,33 @@
 /// English (US) translations
 const Map<String, String> enUS = {
   // App Info
-  'appName': 'Flutter Template',
-  'welcome': 'Flutter Template',
-  'subtitle': 'Production-ready template with IAP, Push Notifications & Clean Architecture',
+  'appName': 'WhereTo',
 
-  // Home Screen Features
-  'feature1': 'GetX State',
-  'feature2': 'In-App Purchase',
-  'feature3': 'Push Notifications',
-  'feature4': 'Multi-Language',
-  'feature5': 'Local Storage',
-  'feature6': 'Logging',
-  'feature7': 'Connectivity',
-  'feature8': 'Clean Architecture',
+  // Search Screen
+  'searchPlaceholder': 'Movies & TV shows',
+  'noResults': 'No results found',
+  'noResultsHint': 'Try adjusting your search terms',
+  'searchHint': 'Search for your favorite movies and shows',
+
+  // Availability Sheet
+  'whereToWatch': 'Where to Watch',
+  'stream': 'Stream',
+  'rent': 'Rent',
+  'buy': 'Buy',
+  'notAvailable': 'N/A',
+  'notAvailableIn': 'Not available in',
+  'checkingAvailability': 'Checking availability...',
+  'findingAvailability': 'Finding where to watch...',
+  'findingWhereToWatch': 'Finding where to watch...',
+  'tryDifferentRegion': 'Try a different region',
+  'watchingFrom': 'Watching from',
+
+  // Region Selector
+  'selectRegion': 'Select Your Region',
+  'selectRegionSubtitle': 'We\'ll show streaming availability for this region',
+  'changeRegion': 'Change Region',
+  'popular': 'POPULAR',
+  'allRegions': 'ALL REGIONS',
 
   // Common
   'ok': 'OK',
@@ -22,13 +36,14 @@ const Map<String, String> enUS = {
   'no': 'No',
   'loading': 'Loading...',
 
-  // Notification Types (used in error/success/warning/info listeners)
+  // Notification Types
   'error': 'Error',
   'success': 'Success',
   'warning': 'Warning',
   'info': 'Info',
 
   // Error Messages
+  'errorOccurred': 'An error occurred',
   'unknownError': 'An unknown error occurred',
   'noInternetConnection': 'No internet connection',
   'connectionTimeout': 'Connection timeout',

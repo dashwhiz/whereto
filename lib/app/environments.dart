@@ -4,6 +4,7 @@ import '../services/connectivity_service.dart';
 import '../services/hive_service.dart';
 import '../services/logging_service.dart';
 import '../services/settings_service.dart';
+import '../services/location_service.dart';
 import 'app.dart';
 
 /// Environment configuration for the app
@@ -56,6 +57,9 @@ class Environment {
 
     // Get saved language preference
     final initialLocale = await settingsService.getSavedLanguage();
+
+    // Initialize location service to detect user's region
+    await locationService.init();
 
     log.info('✅ App initialized successfully');
 

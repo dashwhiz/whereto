@@ -1,5 +1,5 @@
 name: whereto
-description: "whereto with GetX, clean architecture, and ready-to-use utilities."
+description: 'whereto with GetX, clean architecture, and ready-to-use utilities.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -59,6 +59,13 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.8
 
+  # Shimmer effect for loading states
+  shimmer: ^3.0.0
+
+  # Location services
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,7 +85,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   uses-material-design: true
 
   # Assets
@@ -102,7 +108,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/app_icon.png"
+  image_path: 'assets/icon/app_icon.png'
   remove_alpha_ios: true
   # Optionally customize per platform:
   # android: "launcher_icon"

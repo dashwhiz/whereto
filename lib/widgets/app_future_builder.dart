@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'app_loading.dart';
 import '../app/app_colors.dart';
 
@@ -32,7 +33,7 @@ class DataFutureBuilder<T> extends FutureBuilder<T> {
               ),
               const SizedBox(height: 16),
               Text(
-                'An error occurred',
+                'errorOccurred'.tr,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
