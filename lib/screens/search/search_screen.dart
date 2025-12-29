@@ -5,7 +5,7 @@ import '../../app/app_colors.dart';
 import '../../data/background_images.dart';
 import '../../models/movie.dart';
 import '../../models/region.dart';
-import '../../services/mock_data_service.dart';
+import '../../services/tmdb_service.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/availability_sheet.dart';
 import '../../widgets/tmdb_attribution.dart';
@@ -135,7 +135,7 @@ class MovieSearchController extends GetxController
     isLoading.value = true;
 
     try {
-      final results = await mockDataService.searchMovies(query);
+      final results = await tmdbService.searchMovies(query);
       searchResults.value = results;
     } catch (e) {
       searchResults.clear();

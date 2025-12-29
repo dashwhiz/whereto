@@ -5,6 +5,7 @@ import '../services/hive_service.dart';
 import '../services/logging_service.dart';
 import '../services/settings_service.dart';
 import '../services/location_service.dart';
+import '../services/appwrite_service.dart';
 import 'app.dart';
 
 /// Environment configuration for the app
@@ -54,6 +55,10 @@ class Environment {
 
     // Initialize Hive for local storage
     await hiveService.init();
+
+    // Initialize Appwrite backend
+    appwriteService.init();
+    log.info('✅ Appwrite initialized');
 
     // Get saved language preference
     final initialLocale = await settingsService.getSavedLanguage();

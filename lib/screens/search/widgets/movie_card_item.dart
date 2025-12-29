@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../app/app_colors.dart';
 import '../../../models/movie.dart';
+import '../../../widgets/star_rating.dart';
 
 class MovieCardItem extends StatelessWidget {
   final Movie movie;
@@ -123,6 +124,10 @@ class MovieCardItem extends StatelessWidget {
             fontSize: 13,
           ),
         ),
+        if (movie.voteAverage != null) ...[
+          const SizedBox(height: 6),
+          StarRating(rating: movie.voteAverage!, size: 14),
+        ],
       ],
     );
   }

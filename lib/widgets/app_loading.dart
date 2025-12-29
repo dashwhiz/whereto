@@ -22,10 +22,8 @@ class AppLoading extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black54,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: AppLoading(message: message),
-      ),
+      builder: (context) =>
+          PopScope(canPop: false, child: AppLoading(message: message)),
     );
   }
 
@@ -59,17 +57,14 @@ class AppLoading extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Change SpinKitWave to any other SpinKit widget to customize animation
-          SpinKitWave(
-            color: AppColors.primary,
-            size: 60.0,
-          ),
+          SpinKitWave(color: AppColors.primary, size: 60.0),
           if (message != null) ...[
             const SizedBox(height: 20),
             Text(
               message!,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

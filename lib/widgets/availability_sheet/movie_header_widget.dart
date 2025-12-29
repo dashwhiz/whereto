@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../app/app_colors.dart';
 import '../../models/movie.dart';
+import '../star_rating.dart';
+import '../genre_chips.dart';
 
 class MovieHeaderWidget extends StatelessWidget {
   final Movie movie;
@@ -48,12 +50,25 @@ class MovieHeaderWidget extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '${movie.year ?? 'notAvailable'.tr} • ${movie.mediaTypeDisplay}',
+                '${movie.year ?? 'notAvailable'.tr} • ${movie.mediaTypeDisplay}${movie.runtime != null ? ' • ${movie.runtimeDisplay}' : ''}',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                 ),
               ),
+              if (movie.voteAverage != null) ...[
+                const SizedBox(height: 8),
+                StarRating(rating: movie.voteAverage!, size: 16),
+              ],
+              if (movie.genres.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                GenreChips(
+                  genres: movie.genres,
+                  fontSize: 11,
+                  horizontalPadding: 10,
+                  verticalPadding: 5,
+                ),
+              ],
             ],
           ),
         ),
