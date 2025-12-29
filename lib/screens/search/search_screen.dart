@@ -8,6 +8,7 @@ import '../../models/region.dart';
 import '../../services/mock_data_service.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/availability_sheet.dart';
+import '../../widgets/tmdb_attribution.dart';
 import 'widgets/loading_list_widget.dart';
 import 'widgets/movie_list_widget.dart';
 import 'widgets/search_bar_widget.dart';
@@ -232,6 +233,7 @@ class SearchScreen extends GetView<MovieSearchController> {
               },
             ),
 
+            // Attributions - stacked in center bottom
             Positioned(
               bottom: 16,
               left: 0,
@@ -249,28 +251,33 @@ class SearchScreen extends GetView<MovieSearchController> {
 
                   return Opacity(
                     opacity: combinedOpacity,
-                    child: Obx(
-                      () => Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'Photo by ${BackgroundImages.images[controller.currentBackgroundIndex.value].artist}',
-                            style: TextStyle(
-                              color: AppColors.textSecondary.withValues(
-                                alpha: 0.7,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Obx(
+                          () => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Photo by ${BackgroundImages.images[controller.currentBackgroundIndex.value].artist}',
+                              style: TextStyle(
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.7,
+                                ),
+                                fontSize: 10,
                               ),
-                              fontSize: 10,
                             ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        const TmdbAttribution(),
+                      ],
                     ),
                   );
                 },

@@ -49,5 +49,10 @@
 	<string>We use your location to detect your region and show relevant streaming services.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We use your location to detect your region and show relevant streaming services.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+	</array>
 </dict>
 </plist>
