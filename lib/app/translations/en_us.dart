@@ -8,7 +8,6 @@ const Map<String, String> enUS = {
   'noResults': 'No results found',
   'noResultsHint': 'Try adjusting your search terms',
   'searchHint': 'Search for your favorite movies and shows',
-  'photoBy': 'Photo by @artist',
 
   // Availability Sheet
   'whereToWatch': 'Where to Watch',

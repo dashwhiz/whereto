@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../app/app_colors.dart';
-import '../../data/background_images.dart';
 import '../../models/movie.dart';
 import '../../models/region.dart';
 import '../../services/tmdb_service.dart';
@@ -24,13 +23,11 @@ class MovieSearchController extends GetxController
   final selectedRegion = Rx<Region?>(null);
   final hasFocus = false.obs;
   final hasText = false.obs;
-  final currentBackgroundIndex = 0.obs;
   final isOffline = false.obs;
 
   String _lastSearchQuery = '';
   String _pendingSearchQuery = '';
   Timer? _debounceTimer;
-  Timer? _backgroundTimer;
   StreamSubscription? _connectivitySubscription;
 
   final textController = TextEditingController();
@@ -88,11 +85,6 @@ class MovieSearchController extends GetxController
     });
 
     introController.forward();
-
-    _backgroundTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      currentBackgroundIndex.value =
-          (currentBackgroundIndex.value + 1) % BackgroundImages.images.length;
-    });
   }
 
   /// Load user's detected region from location service
@@ -126,7 +118,6 @@ class MovieSearchController extends GetxController
   @override
   void onClose() {
     _debounceTimer?.cancel();
-    _backgroundTimer?.cancel();
     _connectivitySubscription?.cancel();
     introController.dispose();
     animationController.dispose();
@@ -240,37 +231,25 @@ class SearchScreen extends GetView<MovieSearchController> {
                   scale: scale,
                   child: Opacity(
                     opacity: combinedOpacity,
-                    child: Obx(
-                      () => AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 1000),
-                        child: Container(
-                          key: ValueKey(
-                            controller.currentBackgroundIndex.value,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: const DecorationImage(
+                          image: AssetImage(
+                            'assets/images/search_background.jpeg',
                           ),
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                BackgroundImages
-                                    .images[controller
-                                        .currentBackgroundIndex
-                                        .value]
-                                    .url,
-                              ),
-                              fit: BoxFit.cover,
-                              opacity: 0.5,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  AppColors.background.withValues(alpha: 0.4),
-                                  AppColors.background.withValues(alpha: 0.7),
-                                ],
-                              ),
-                            ),
+                          fit: BoxFit.cover,
+                          opacity: 0.5,
+                        ),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.background.withValues(alpha: 0.4),
+                              AppColors.background.withValues(alpha: 0.7),
+                            ],
                           ),
                         ),
                       ),
@@ -280,7 +259,7 @@ class SearchScreen extends GetView<MovieSearchController> {
               },
             ),
 
-            // Attributions - stacked in center bottom
+            // TMDB Attribution
             Positioned(
               bottom: 16,
               left: 0,
@@ -298,36 +277,7 @@ class SearchScreen extends GetView<MovieSearchController> {
 
                   return Opacity(
                     opacity: combinedOpacity,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Obx(
-                          () => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'photoBy'.trParams({
-                                'artist': BackgroundImages.images[controller.currentBackgroundIndex.value].artist
-                              }),
-                              style: TextStyle(
-                                color: AppColors.textSecondary.withValues(
-                                  alpha: 0.7,
-                                ),
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const TmdbAttribution(),
-                      ],
-                    ),
+                    child: const TmdbAttribution(),
                   );
                 },
               ),
