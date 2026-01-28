@@ -1,4 +1,4 @@
-package com.example.where_to
+package com.flickradar.app
 
 import io.flutter.embedding.android.FlutterActivity
 

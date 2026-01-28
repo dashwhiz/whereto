@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.where_to"
+    namespace = "com.flickradar.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.whereto"
+        applicationId = "com.flickradar.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -45,12 +44,12 @@ android {
             dimension = "default"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "app_name", "My Template Dev")
+            resValue("string", "app_name", "FlickRadar Dev")
         }
 
         create("prod") {
             dimension = "default"
-            resValue("string", "app_name", "My Template")
+            resValue("string", "app_name", "FlickRadar")
         }
     }
 }
