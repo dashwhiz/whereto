@@ -1,7 +1,7 @@
 /// English (US) translations
 const Map<String, String> enUS = {
   // App Info
-  'appName': 'WhereTo',
+  'appName': 'FlickRadar',
 
   // Search Screen
   'searchPlaceholder': 'Movies & TV shows',

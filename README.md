@@ -1,4 +1,4 @@
-# WhereTo
+# FlickRadar
 
 A Flutter app that helps you find where to stream movies and TV shows in your region.
 

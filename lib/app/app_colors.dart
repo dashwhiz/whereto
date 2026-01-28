@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Netflix-inspired color palette for WhereTo app
+/// Netflix-inspired color palette for FlickRadar app
 /// Pure black backgrounds with Netflix red accents for cinema aesthetic
 class AppColors {
   // Background colors - Netflix pure black theme
